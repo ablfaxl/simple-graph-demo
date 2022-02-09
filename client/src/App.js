@@ -56,15 +56,7 @@ export default () => {
         <h2>
           {myString}
         </h2>
-        <div onClick={() => clickMe()} > click me </div>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <div style={{background: 'green', padding: 12, cursor: 'pointer', borderRadius: 12}} onClick={() => clickMe()} > click me </div>
       </header>
     </div>
   );
