@@ -1,29 +1,46 @@
 import generateNumericString from "@lib/utils/generateNumericString"
+import { writeFileSync, readdirSync, existsSync, mkdirSync, readFileSync } from 'fs'
+import path from 'path'
 
-export const Books = []
+const dbDirectory = path.join(process.cwd(), '/src/db/book')
+
+if (!existsSync(dbDirectory)) {
+  mkdirSync(dbDirectory)
+}
 
 const generateID = () => `${new Date().getTime()}${generateNumericString(6)}`
 
-const getBooks = () => [...Books]
-const getBookById = _id => Books.find(book => book._id === _id)
+const getBooks = () =>
+  readdirSync(dbDirectory).map(item => 
+    JSON.parse(readFileSync(path.join(dbDirectory, item), {
+      encoding: "utf8",
+    }))
+  );
+
+const getBookById = _id => 
+  JSON.parse(readFileSync(path.join(dbDirectory, `${_id}.txt`), {
+    encoding: "utf8",
+  }));
+
 const createBook = data => {
   const book = {
     _id: generateID(),
     ...data,
     createdAt: new Date().toISOString()
   }
-  Books.push(book)
+
+  writeFileSync(path.join(dbDirectory, `${book._id}.txt`), JSON.stringify(book), "utf8")
+
 }
 const editBook = (_id, data) => {
-  const thisBookIndex = Books.findIndex(Book => Book._id === _id)
-  
-  if (thisBookIndex < 0) throw new Error('bad request')
+  const thisBook = getAuthorById(_id)
 
-  Books[thisBookIndex].title = data.title
-  
+  thisBook.title = data.title
+  writeFileSync(path.join(dbDirectory, `${_id}.txt`), JSON.stringify(thisBook), "utf8")
+
 }
 
-export const filterBooksByAuthorID = authorId => Books.filter(item => item.authorId === authorId)
+export const filterBooksByAuthorID = authorId => getBooks().filter(item => item.authorId === authorId)
 
 export default {
   Query: {

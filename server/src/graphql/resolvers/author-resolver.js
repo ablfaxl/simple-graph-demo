@@ -1,30 +1,50 @@
 import generateNumericString from "@lib/utils/generateNumericString"
+import { writeFileSync, readdirSync, existsSync, mkdirSync, readFileSync } from 'fs'
+import path from 'path'
 
-export const Authors = []
+const dbDirectory = path.join(process.cwd(), '/src/db/author')
+
+if (!existsSync(dbDirectory)) {
+  mkdirSync(dbDirectory)
+}
 
 const generateID = () => `${new Date().getTime()}${generateNumericString(6)}`
 
-const getAuthors = () => [...Authors]
-export const getAuthorById = _id => Authors.find(author => author._id === _id)
+const getAuthors = () => 
+  readdirSync(dbDirectory).map(item => 
+    JSON.parse(readFileSync(path.join(dbDirectory, item), {
+      encoding: "utf8",
+    }))
+  );
+
+
+export const getAuthorById = _id => {
+  return JSON.parse(readFileSync(path.join(dbDirectory, `${_id}.txt`), {
+    encoding: "utf8",
+  }));
+}
+
 const createAuthor = data => {
+
   const author = {
     _id: generateID(),
     ...data,
     createdAt: new Date().toISOString()
   }
-  Authors.push(author)
+
+  writeFileSync(path.join(dbDirectory, `${author._id}.txt`), JSON.stringify(author), "utf8")
+
 }
+
 const editAuthor = (_id, data) => {
-  const thisAuthorIndex = Authors.findIndex(author => author._id === _id)
-  
-  if (thisAuthorIndex < 0) throw new Error('bad request')
 
-  Authors[thisAuthorIndex].name = data.name
+  const thisAuthor = getAuthorById(_id)
+
+  thisAuthor.name = data.name
   
+  writeFileSync(path.join(dbDirectory, `${_id}.txt`), JSON.stringify(thisAuthor), "utf8")
+
 }
-
-// 
-// (req,res,next) => 
 
 export default {
   Query: {
@@ -33,12 +53,14 @@ export default {
   },
   Mutation: {
     createAuthor: (_, data) => {
+
       createAuthor(data)
       return {
         msg: 'ok',
         status: 200
       }
     },
+
     editAuthor: (_, { _id, name }) => {
 
       try {
@@ -49,7 +71,6 @@ export default {
           msg: 'ok',
           status: 200
         }
-
 
       } catch (error) {
         throw error

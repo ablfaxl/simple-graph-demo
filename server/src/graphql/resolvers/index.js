@@ -3,8 +3,6 @@ import authorResolver, { getAuthorById } from "./author-resolver"
 import bookResolver, { filterBooksByAuthorID } from "./book-resolver"
 
 
-
-
 export default {
   Book: {
     author: (book) => getAuthorById(book.authorId)
