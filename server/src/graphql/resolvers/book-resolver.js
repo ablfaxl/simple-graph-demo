@@ -33,7 +33,7 @@ const createBook = data => {
 
 }
 const editBook = (_id, data) => {
-  const thisBook = getAuthorById(_id)
+  const thisBook = getBookById(_id)
 
   thisBook.title = data.title
   writeFileSync(path.join(dbDirectory, `${_id}.txt`), JSON.stringify(thisBook), "utf8")
