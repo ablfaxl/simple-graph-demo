@@ -1,6 +1,7 @@
 import generateNumericString from "@lib/utils/generateNumericString"
 import { writeFileSync, readdirSync, existsSync, mkdirSync, readFileSync } from 'fs'
 import path from 'path'
+import { getAuthorById } from "./author-resolver"
 
 const dbDirectory = path.join(process.cwd(), '/src/db/book')
 
@@ -49,6 +50,11 @@ export default {
   },
   Mutation: {
     createBook: (_, data) => {
+
+      const thisAuthor = getAuthorById(data.authorId)
+
+      if (!thisAuthor) throw new Error("bad request: no such author exists")
+
       createBook(data)
       return {
         msg: 'ok',

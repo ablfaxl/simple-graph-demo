@@ -19,9 +19,13 @@ const getAuthors = () =>
 
 
 export const getAuthorById = _id => {
-  return JSON.parse(readFileSync(path.join(dbDirectory, `${_id}.txt`), {
-    encoding: "utf8",
-  }));
+  try {
+    return JSON.parse(readFileSync(path.join(dbDirectory, `${_id}.txt`), {
+      encoding: "utf8",
+    }));
+  } catch (error) {
+    return null
+  }
 }
 
 const createAuthor = data => {
